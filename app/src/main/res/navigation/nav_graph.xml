@@ -29,9 +29,7 @@
             app:destination="@id/reminderListFragment" />
         <action
             android:id="@+id/action_saveReminderFragment_to_selectLocationFragment"
-            app:destination="@id/selectLocationFragment"
-            app:popUpTo="@id/selectLocationFragment"
-            app:popUpToInclusive="true" />
+            app:destination="@id/selectLocationFragment" />
     </fragment>
     <fragment
         android:id="@+id/selectLocationFragment"
@@ -40,8 +38,12 @@
         tools:layout="@layout/fragment_select_location">
         <action
             android:id="@+id/action_selectLocationFragment_to_saveReminderFragment"
-            app:destination="@id/saveReminderFragment"
-            app:popUpToInclusive="true" />
+            app:destination="@id/saveReminderFragment" />
     </fragment>
+    <activity
+        android:id="@+id/authenticationActivity"
+        android:name="com.udacity.project4.authentication.AuthenticationActivity"
+        android:label="activity_authentication"
+        tools:layout="@layout/activity_authentication" />
 
 </navigation>
