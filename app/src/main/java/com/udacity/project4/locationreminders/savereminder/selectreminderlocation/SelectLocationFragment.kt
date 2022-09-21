@@ -77,8 +77,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
     override fun onMapReady(googleMap: GoogleMap?) {
         mMap = googleMap!!
 
-        val latitude = 37.42353987691082
-        val longitude = -122.08623111248015
+        val latitude = 37.4253
+        val longitude = -122.0934
         val latLng = LatLng(latitude, longitude)
 
         // Add marker on map
