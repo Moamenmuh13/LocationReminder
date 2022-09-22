@@ -3,7 +3,9 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -13,6 +15,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 import com.udacity.project4.R
@@ -20,6 +23,7 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import kotlinx.android.synthetic.main.it_reminder.*
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -52,7 +56,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
         val supportMapFragment =
             childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         supportMapFragment?.getMapAsync(this)
-//        TODO: add style to the map
 
         binding.saveLocationBtn.setOnClickListener(this)
 //        enableLocation()
@@ -66,13 +69,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
             }
         }
     }
-//
-//    override fun onStart() {
-//        super.onStart()
-//        if (::mMap.isInitialized) {
-//            enableLocation()
-//        }
-//    }
+
 
     override fun onMapReady(googleMap: GoogleMap?) {
         mMap = googleMap!!
@@ -86,10 +83,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
         // Animating to zoom the marker
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
         enableLocation()
-        setPoiClick(mMap)
 
+        setPoiClick(mMap)
 //        setMapLongCLick(mMap)
-//        setMapStyle(mMap)
+        setMapStyle(mMap)
     }
 
     private fun setPoiClick(googleMap: GoogleMap?) {
@@ -104,32 +101,35 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
         }
     }
 
-    private fun setMapLongCLick(googleMap: GoogleMap?) {
-        googleMap?.setOnMapLongClickListener { latLng ->
-            val snippet = String.format(
-                Locale.getDefault(),
-                "Lat: %1$.5f, Long: %2$.5f",
-                latLng.latitude,
-                latLng.longitude
-            )
-            googleMap.clear()
-            googleMap.addMarker(
-                MarkerOptions().position(latLng).title(getString(R.string.dropped_pin))
-                    .snippet(snippet)
-            )
-        }
-    }
+//    private fun setMapLongCLick(googleMap: GoogleMap?) {
+//        googleMap?.setOnMapLongClickListener { latLng ->
+//            val snippet = String.format(
+//                Locale.getDefault(),
+//                "Lat: %1$.5f, Long: %2$.5f",
+//                latLng.latitude,
+//                latLng.longitude
+//            )
+//            googleMap.clear()
+//            googleMap.addMarker(
+//                MarkerOptions().position(latLng).snippet(snippet)
+//                    .title("Dropped Pin")
+//            )
+//        }
+//    }
 
     private fun onLocationSelected() {
-        if (this::pPoi.isInitialized) {
-            _viewModel.longitude.value = pPoi.latLng.longitude
-            _viewModel.latitude.value = pPoi.latLng.latitude
-            _viewModel.reminderSelectedLocationStr.value = pPoi.name
-            _viewModel.selectedPOI.value = pPoi
-            _viewModel.navigationCommand.value =
-                NavigationCommand.To(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
-        } else
-            Toast.makeText(requireContext(), "You should pick a place", Toast.LENGTH_SHORT).show()
+        when {
+            this::pPoi.isInitialized -> {
+                _viewModel.longitude.value = pPoi.latLng.longitude
+                _viewModel.latitude.value = pPoi.latLng.latitude
+                _viewModel.reminderSelectedLocationStr.value = pPoi.name
+                _viewModel.selectedPOI.value = pPoi
+                _viewModel.navigationCommand.value =
+                    NavigationCommand.To(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+            }
+            else -> Toast.makeText(requireContext(), "You should pick a place", Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
     private fun showSaveLocationBtn() = when {
@@ -141,18 +141,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
     }
 
 
-//    private fun setMapStyle(googleMap: GoogleMap?) {
-//        try {
-//            val success = googleMap?.setMapStyle(
-//                MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style)
-//            )
-//            if (!success!!) {
-//                Log.e(TAG, "Style parsing failed.")
-//            }
-//        } catch (e: Resources.NotFoundException) {
-//            Log.e(TAG, "Can't find style. Error: ", e)
-//        }
-//    }
+    private fun setMapStyle(googleMap: GoogleMap?) {
+        try {
+            val success = googleMap?.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style)
+            )
+            if (!success!!) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
+        }
+    }
 
 
     private fun enableLocation() {
@@ -163,9 +163,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
             )
             -> {
                 mMap.isMyLocationEnabled = true
-                Toast.makeText(requireContext(),
+                Toast.makeText(
+                    requireContext(),
                     "You has been accepted the permission",
-                    Toast.LENGTH_SHORT).show()
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             else -> {
                 ActivityCompat.requestPermissions(

@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -25,7 +26,7 @@ class ReminderListFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View{
+    ): View {
         binding =
             DataBindingUtil.inflate(
                 inflater,
@@ -89,15 +90,29 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun userSignOut(it: Task<Void>) {
+        val alertDialog = AlertDialog.Builder(requireContext())
+        val builder = alertDialog.setTitle("Are you sure you wants to leave")
+            .setMessage("If you  logged out all your data will erase")
+            .setPositiveButton("Exit") { dialogInterface, i ->
+                logout(it)
+            }
+            .setNegativeButton("Cancel") { dialogInterface, i ->
+                Toast.makeText(requireContext(), "Thanks for staying ❤", Toast.LENGTH_SHORT).show()
+                dialogInterface.dismiss()
+            }
+        builder.show()
+    }
+
+    private fun logout(it: Task<Void>) {
         if (it.isSuccessful) {
-            Toast.makeText(requireContext(),
-                "We will miss you try to come back again :) ",
-                Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                requireContext(),
+                "We will miss you try to come back again 😥 👋 ",
+                Toast.LENGTH_LONG
+            ).show()
             startActivity(Intent(requireActivity(), AuthenticationActivity::class.java))
             _viewModel.removeAllReminders()
             requireActivity().finish()
-        } else {
-            Toast.makeText(requireContext(), "Failed To logout", Toast.LENGTH_SHORT).show()
         }
     }
 

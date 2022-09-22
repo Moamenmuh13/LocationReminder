@@ -222,7 +222,7 @@ class SaveReminderFragment : BaseFragment() {
                 .addGeofence(geofence)
                 .build()
 
-            val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+            val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
             intent.action = ACTION_GEOFENCE_EVENT
 
             val geofencePendingIntent = startGeofencingBroadcastReceiver(intent)
@@ -232,7 +232,7 @@ class SaveReminderFragment : BaseFragment() {
                     geofenceClient.addGeofences(geofenceRequest, geofencePendingIntent).run {
                         addOnSuccessListener {
                             Log.d(TAG, "addGeofenceForReminder: ${geofence.requestId}")
-                            Toast.makeText(context, geofence.requestId, Toast.LENGTH_SHORT)
+                            Toast.makeText(requireContext(), geofence.requestId, Toast.LENGTH_SHORT)
                                 .show()
                         }
                         addOnFailureListener {
