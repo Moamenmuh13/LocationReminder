@@ -125,7 +125,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
                 _viewModel.reminderSelectedLocationStr.value = pPoi.name
                 _viewModel.selectedPOI.value = pPoi
                 _viewModel.navigationCommand.value =
-                    NavigationCommand.To(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+//                    NavigationCommand.To(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+                    NavigationCommand.Back
             }
             else -> Toast.makeText(requireContext(), "You should pick a place", Toast.LENGTH_SHORT)
                 .show()

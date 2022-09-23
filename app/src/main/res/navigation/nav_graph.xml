@@ -12,7 +12,8 @@
         tools:layout="@layout/fragment_reminders">
         <action
             android:id="@+id/to_save_reminder"
-            app:destination="@id/saveReminderFragment" />
+            app:destination="@id/saveReminderFragment"
+            app:popUpToInclusive="false" />
     </fragment>
     <activity
         android:id="@+id/mainActivity"
@@ -29,7 +30,8 @@
             app:destination="@id/reminderListFragment" />
         <action
             android:id="@+id/action_saveReminderFragment_to_selectLocationFragment"
-            app:destination="@id/selectLocationFragment" />
+            app:destination="@id/selectLocationFragment"
+            app:popUpToInclusive="false" />
     </fragment>
     <fragment
         android:id="@+id/selectLocationFragment"
