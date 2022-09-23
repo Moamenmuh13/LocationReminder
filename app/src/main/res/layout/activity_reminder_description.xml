@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
             android:gravity="center"
-            android:text="Your Gaol:"
+            android:text="@string/your_goal"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +52,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView5"
-            tools:text="TextView" />
+            tools:text="Goal" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
