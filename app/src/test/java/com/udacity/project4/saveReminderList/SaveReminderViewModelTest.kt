@@ -58,7 +58,7 @@ class SaveReminderViewModelTest {
     }
 
     @Test
-    fun saveReminder_withoutEnteringTitle() {
+    fun saveReminder_title_is_missing() {
         //when
         val savedReminderData = ReminderDataItem(
             "", "test", "test", 22.5492551, 24.0156831
@@ -71,7 +71,7 @@ class SaveReminderViewModelTest {
     }
 
     @Test
-    fun saveReminder_withoutSelectingLocation() {
+    fun saveReminder_location_is_missing() {
         //when
         val savedReminderData = ReminderDataItem(
             "test", "test", "", 22.5492551, 24.0156831

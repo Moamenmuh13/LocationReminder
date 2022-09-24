@@ -44,7 +44,7 @@ class ReminderListViewModelTest {
     }
 
     @Test
-    fun noData_showLoadingProgress() {
+    fun reminderListHasNoData_showLoadingProgress() {
         runBlockingTest {
             //then
             mainCoroutineRule.pauseDispatcher()
@@ -56,7 +56,7 @@ class ReminderListViewModelTest {
     }
 
     @Test
-    fun noData_hideLoadingProgress() {
+    fun reminderListHasNoData_hideLoadingProgress() {
         runBlockingTest {
             //when
             reminderListViewModel.loadReminders()
@@ -81,7 +81,7 @@ class ReminderListViewModelTest {
 
 
     @Test
-    fun loadReminderData_with_data() {
+    fun loadReminderData_withData() {
         runBlockingTest {
             //when
             val reminderData =
@@ -92,8 +92,7 @@ class ReminderListViewModelTest {
             reminderListViewModel.loadReminders()
 
             //result
-            assertThat(reminderListViewModel.remindersList.getOrAwaitValue()
-                .isEmpty()).isFalse()
+            assertThat(reminderListViewModel.remindersList.getOrAwaitValue().isEmpty()).isFalse()
             assertThat(reminderListViewModel.showLoading.getOrAwaitValue()).isFalse()
             assertThat(reminderListViewModel.showNoData.getOrAwaitValue()).isFalse()
         }
