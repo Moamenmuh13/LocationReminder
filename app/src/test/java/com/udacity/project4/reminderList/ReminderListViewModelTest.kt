@@ -20,12 +20,11 @@ import org.koin.core.context.stopKoin
 import org.robolectric.annotation.Config
 
 
-// when i run on API 30 give me an error API level 30 is not available
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
+//Cant run it on API Level 30 *ERROR CODE* API level 30 is not available
 @Config(sdk = [Build.VERSION_CODES.P])
 class ReminderListViewModelTest {
-
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -46,7 +45,7 @@ class ReminderListViewModelTest {
     @Test
     fun reminderListHasNoData_showLoadingProgress() {
         runBlockingTest {
-            //then
+            //Given
             mainCoroutineRule.pauseDispatcher()
             reminderListViewModel.loadReminders()
 
@@ -58,9 +57,8 @@ class ReminderListViewModelTest {
     @Test
     fun reminderListHasNoData_hideLoadingProgress() {
         runBlockingTest {
-            //when
+            //Given
             reminderListViewModel.loadReminders()
-
             //result
             assertThat(reminderListViewModel.showLoading.getOrAwaitValue()).isFalse()
         }
@@ -69,9 +67,9 @@ class ReminderListViewModelTest {
     @Test
     fun reminderListHasNotData_emptyResult() {
         runBlockingTest {
-            //when
+            //Given
             fakeDataSource.deleteAllReminders()
-            //then
+            //When
             reminderListViewModel.loadReminders()
             //result
             assertThat(reminderListViewModel.remindersList.getOrAwaitValue().isEmpty()).isTrue()
@@ -83,12 +81,10 @@ class ReminderListViewModelTest {
     @Test
     fun loadReminderData_withData() {
         runBlockingTest {
-            //when
-            val reminderData =
-                ReminderDTO("EGYPT", "Visit the Pyramids", "Pyramids", 29.9773, 31.1325)
-            fakeDataSource.saveReminder(reminderData)
+            //Given
+            fakeDataSource.saveReminder(setReminderData())
 
-            //then
+            //When
             reminderListViewModel.loadReminders()
 
             //result
@@ -96,5 +92,10 @@ class ReminderListViewModelTest {
             assertThat(reminderListViewModel.showLoading.getOrAwaitValue()).isFalse()
             assertThat(reminderListViewModel.showNoData.getOrAwaitValue()).isFalse()
         }
+    }
+
+    private fun setReminderData(): ReminderDTO {
+        return ReminderDTO("EGYPT", "Visit the Pyramids",
+            "Pyramids", 29.9773, 31.1325)
     }
 }

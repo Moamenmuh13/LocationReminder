@@ -9,10 +9,8 @@ import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.data.source.FakeDataSource
 import com.udacity.project4.getOrAwaitValue
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
-import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.Matchers.`is`
 import org.junit.Before
@@ -24,6 +22,7 @@ import org.robolectric.annotation.Config
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
+//Cant run it on API Level 30 *ERROR CODE* API level 30 is not available
 @Config(sdk = [Build.VERSION_CODES.P])
 class SaveReminderViewModelTest {
 
@@ -37,7 +36,7 @@ class SaveReminderViewModelTest {
     private lateinit var saveReminderViewModel: SaveReminderViewModel
 
     @Before
-    fun setupTheRepository() {
+    fun setup() {
         stopKoin()
         fakeDataSource = FakeDataSource()
         saveReminderViewModel =
@@ -46,40 +45,35 @@ class SaveReminderViewModelTest {
 
     @Test
     fun saveReminder_enterValidData() {
-        //when
-        val savedReminderDataItem = ReminderDataItem(
-            "test", "test", "test", 22.5492551, 24.0156831)
 
-        //then
-        saveReminderViewModel.saveReminder(savedReminderDataItem)
+        //when
+        saveReminderViewModel.saveReminder(setReminderData())
 
         //result
         assertThat(saveReminderViewModel.showToast.getOrAwaitValue(), `is`("Reminder Saved !"))
     }
 
     @Test
-    fun saveReminder_title_is_missing() {
+    fun saveReminder_titleIsMissing() {
         //when
-        val savedReminderData = ReminderDataItem(
-            "", "test", "test", 22.5492551, 24.0156831
-        )
-        //then
-        saveReminderViewModel.validateAndSaveReminder(savedReminderData)
+        saveReminderViewModel.validateAndSaveReminder(setReminderData())
 
         //result
         assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue(), notNullValue())
     }
 
     @Test
-    fun saveReminder_location_is_missing() {
+    fun saveReminder_locationIsMissing() {
         //when
-        val savedReminderData = ReminderDataItem(
-            "test", "test", "", 22.5492551, 24.0156831
-        )
-        //then
-        saveReminderViewModel.validateAndSaveReminder(savedReminderData)
+        saveReminderViewModel.validateAndSaveReminder(setReminderData())
 
         //result
         assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue(), notNullValue())
+    }
+
+    private fun setReminderData(): ReminderDataItem {
+        return ReminderDataItem(
+            "EGYPT", "Visit the Pyramids",
+            "Pyramids", 29.9773, 31.1325)
     }
 }

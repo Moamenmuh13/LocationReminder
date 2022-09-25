@@ -93,10 +93,10 @@ class ReminderListFragment : BaseFragment() {
         val alertDialog = AlertDialog.Builder(requireContext())
         val builder = alertDialog.setTitle("Are you sure you wants to leave")
             .setMessage("If you  logged out all your data will erase")
-            .setPositiveButton("Exit") { dialogInterface, i ->
+            .setPositiveButton("Exit") { _, _ ->
                 logout(it)
             }
-            .setNegativeButton("Cancel") { dialogInterface, i ->
+            .setNegativeButton("Cancel") { dialogInterface, _ ->
                 Toast.makeText(requireContext(), "Thanks for staying ❤", Toast.LENGTH_SHORT).show()
                 dialogInterface.dismiss()
             }
