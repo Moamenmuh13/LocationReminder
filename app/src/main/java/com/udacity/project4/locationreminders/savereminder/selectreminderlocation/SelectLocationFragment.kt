@@ -23,12 +23,11 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import kotlinx.android.synthetic.main.it_reminder.*
+import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
-import java.util.*
 
 
-class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickListener {
+class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     private val TAG = "SelectLocationFragment"
     private lateinit var mMap: GoogleMap
@@ -51,23 +50,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
         binding.lifecycleOwner = this
 
         setHasOptionsMenu(true)
-//        setDisplayHomeAsUpEnabled(true)
+        setDisplayHomeAsUpEnabled(true)
 
-        val supportMapFragment =
-            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        supportMapFragment?.getMapAsync(this)
+        setupSelectLocationFragment()
 
-        binding.saveLocationBtn.setOnClickListener(this)
+        binding.saveLocationBtn.setOnClickListener {
+            onLocationSelected()
+        }
 //        enableLocation()
         return binding.root
     }
 
-    override fun onClick(p0: View?) {
-        when (p0) {
-            binding.saveLocationBtn -> {
-                onLocationSelected()
-            }
-        }
+    private fun setupSelectLocationFragment() {
+        val supportMapFragment =
+            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        supportMapFragment?.getMapAsync(this)
     }
 
 
@@ -82,11 +79,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
         mMap.addMarker(MarkerOptions().position(latLng))
         // Animating to zoom the marker
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
-        enableLocation()
-
         setPoiClick(mMap)
 //        setMapLongCLick(mMap)
         setMapStyle(mMap)
+        enableLocation()
     }
 
     private fun setPoiClick(googleMap: GoogleMap?) {
@@ -96,7 +92,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
             val poiOptions =
                 googleMap.addMarker(MarkerOptions().position(poi.latLng).title(poi.name))
             poiOptions.showInfoWindow()
-
             showSaveLocationBtn()
         }
     }
@@ -125,7 +120,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, View.OnClickL
                 _viewModel.reminderSelectedLocationStr.value = pPoi.name
                 _viewModel.selectedPOI.value = pPoi
                 _viewModel.navigationCommand.value =
-//                    NavigationCommand.To(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
                     NavigationCommand.Back
             }
             else -> Toast.makeText(requireContext(), "You should pick a place", Toast.LENGTH_SHORT)

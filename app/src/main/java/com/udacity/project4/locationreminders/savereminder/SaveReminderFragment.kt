@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.savereminder
 import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
@@ -17,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -24,6 +26,7 @@ import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import org.koin.android.ext.android.inject
+import java.lang.Exception
 
 
 private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
@@ -42,6 +45,8 @@ class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
+
+    var activity = Activity()
 
     private lateinit var geofenceClient: GeofencingClient
     private lateinit var reminderDataItem: ReminderDataItem
@@ -74,6 +79,12 @@ class SaveReminderFragment : BaseFragment() {
         binding.saveReminder.setOnClickListener { setReminderDataToLocalDB() }
     }
 
+
+    @Deprecated("Deprecated in Java")
+    override fun onAttach(activity: Activity) {
+        super.onAttach(activity)
+        this.activity = activity
+    }
 
     private fun selectLocation() {
         //            Navigate to another fragment to get the user location
@@ -171,72 +182,75 @@ class SaveReminderFragment : BaseFragment() {
         val settingClient = LocationServices.getSettingsClient(requireContext())
         val locationSettingResponse = settingClient.checkLocationSettings(builder.build())
         locationSettingResponse.addOnFailureListener { exception ->
-            if (exception is ResolvableApiException && resolve) {
-                // Location settings are not satisfied, but this can be fixed
-                // by showing the user a dialog
-                try {
-                    exception.startResolutionForResult(
-                        requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON
-                    )
-                } catch (sendException: IntentSender.SendIntentException) {
-                    Log.d(
-                        TAG,
-                        "errorSendingLocation: ${sendException.message} "
-                    )
-                }
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.location_required_error),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
+            locationFailure(exception, resolve)
         }
         locationSettingResponse.addOnCompleteListener {
-            if (it.isSuccessful) {
-                addGeofenceForReminder()
-            }
+            locationSuccess(it)
         }
     }
 
-    @SuppressLint("MissingPermission")
+    private fun locationSuccess(it: Task<LocationSettingsResponse>) {
+        if (it.isSuccessful) {
+            addGeofenceForReminder()
+        }
+    }
+
+    private fun locationFailure(exception: Exception, resolve: Boolean) {
+        if (exception is ResolvableApiException && resolve) {
+            // Location settings are not satisfied, but this can be fixed
+            // by showing the user a dialog
+            try {
+                exception.startResolutionForResult(
+                    requireActivity(),
+                    REQUEST_TURN_DEVICE_LOCATION_ON
+                )
+            } catch (sendException: IntentSender.SendIntentException) {
+                Log.d(
+                    TAG,
+                    "errorSendingLocation: ${sendException.message} "
+                )
+            }
+        } else {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.location_required_error),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     private fun addGeofenceForReminder() {
         if (this::reminderDataItem.isInitialized) {
             val currentGeofenceData = reminderDataItem
 
-            val geofence = Geofence.Builder()
-                .setRequestId(currentGeofenceData.id)
-                .setCircularRegion(
-                    currentGeofenceData.latitude!!,
-                    currentGeofenceData.longitude!!,
-                    2000f
-                )
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                .build()
+            val geofence = geofence(currentGeofenceData)
 
-            val geofenceRequest = GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .addGeofence(geofence)
-                .build()
+            val geofenceRequest = geofencingRequest(geofence)
 
             val intent = Intent(activity, GeofenceBroadcastReceiver::class.java)
             intent.action = ACTION_GEOFENCE_EVENT
 
             val geofencePendingIntent = startGeofencingBroadcastReceiver(intent)
 
-            geofenceClient.removeGeofences(geofencePendingIntent)?.run {
-                addOnCompleteListener {
-                    geofenceClient.addGeofences(geofenceRequest, geofencePendingIntent).run {
-                        addOnSuccessListener {
-                            Log.d(TAG, "addGeofenceForReminder: ${geofence.requestId}")
-                        }
-                        addOnFailureListener {
-                            if (it.message != null) {
-                                Log.d(TAG, "Failed To add geofence: ${it.message}")
-                            }
+            handleGeofenceClient(geofencePendingIntent, geofenceRequest, geofence)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun handleGeofenceClient(
+        geofencePendingIntent: PendingIntent?,
+        geofenceRequest: GeofencingRequest?,
+        geofence: Geofence?
+    ) {
+        geofenceClient.removeGeofences(geofencePendingIntent)?.run {
+            addOnCompleteListener {
+                geofenceClient.addGeofences(geofenceRequest, geofencePendingIntent).run {
+                    addOnSuccessListener {
+                        Log.d(TAG, "addGeofenceForReminder: ${geofence?.requestId}")
+                    }
+                    addOnFailureListener {
+                        if (it.message != null) {
+                            Log.d(TAG, "Failed To add geofence: ${it.message}")
                         }
                     }
                 }
@@ -244,9 +258,29 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
+    private fun geofencingRequest(geofence: Geofence?): GeofencingRequest? {
+        return GeofencingRequest.Builder()
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .addGeofence(geofence)
+            .build()
+    }
+
+    private fun geofence(currentGeofenceData: ReminderDataItem): Geofence? {
+        return Geofence.Builder()
+            .setRequestId(currentGeofenceData.id)
+            .setCircularRegion(
+                currentGeofenceData.latitude!!,
+                currentGeofenceData.longitude!!,
+                2000f
+            )
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .build()
+    }
+
     private fun startGeofencingBroadcastReceiver(intent: Intent): PendingIntent? {
         return PendingIntent.getBroadcast(
-            requireContext(),
+            activity,
             0,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT
