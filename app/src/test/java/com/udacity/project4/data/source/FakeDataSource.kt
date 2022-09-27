@@ -24,7 +24,6 @@ class FakeDataSource(private val reminders: MutableList<ReminderDTO> = mutableLi
         } else
             Result.Success(ArrayList(reminders))
     }
-    ///
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         return when {
             returnError -> {
