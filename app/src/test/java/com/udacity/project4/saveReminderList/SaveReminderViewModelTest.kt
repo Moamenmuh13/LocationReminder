@@ -20,10 +20,10 @@ import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
 import org.robolectric.annotation.Config
 
+//Cant run it on API Level 30 *ERROR CODE* API level 30 is not available
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-//Cant run it on API Level 30 *ERROR CODE* API level 30 is not available
-@Config(sdk = [Build.VERSION_CODES.P])
+@Config(maxSdk = Build.VERSION_CODES.P)
 class SaveReminderViewModelTest {
 
     @get:Rule
@@ -45,7 +45,6 @@ class SaveReminderViewModelTest {
 
     @Test
     fun saveReminder_enterValidData() {
-
         //when
         saveReminderViewModel.saveReminder(setReminderData())
 
@@ -55,8 +54,12 @@ class SaveReminderViewModelTest {
 
     @Test
     fun saveReminder_titleIsMissing() {
+        //Given
+        val reminderList = ReminderDataItem(
+            "", "Visit the Pyramids",
+            "Pyramids", 29.9773, 31.1325)
         //when
-        saveReminderViewModel.validateAndSaveReminder(setReminderData())
+        saveReminderViewModel.validateAndSaveReminder(reminderList)
 
         //result
         assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue(), notNullValue())
@@ -64,8 +67,13 @@ class SaveReminderViewModelTest {
 
     @Test
     fun saveReminder_locationIsMissing() {
+        //Given
+        val reminderList = ReminderDataItem(
+            "Pyramids", "Visit the Pyramids",
+            "", 29.9773, 31.1325)
+
         //when
-        saveReminderViewModel.validateAndSaveReminder(setReminderData())
+        saveReminderViewModel.validateAndSaveReminder(reminderList)
 
         //result
         assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue(), notNullValue())
