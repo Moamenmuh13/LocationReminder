@@ -52,7 +52,8 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
     //TODO: get the request id of the current geofence
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
-            val requestId = triggeringGeofences[0].requestId
+        for (id in triggeringGeofences) {
+            val requestId = id.requestId
             val remindersLocalRepository: ReminderDataSource by inject()
             //Get the local repository instance
 //        Interaction to the repository has to be through a coroutine scope
@@ -73,8 +74,8 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                         )
                     )
                 }
+            }
         }
-
     }
 
 }

@@ -11,8 +11,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
-import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.*
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -44,70 +43,41 @@ class ReminderListViewModelTest {
         reminderListViewModel = RemindersListViewModel(getApplicationContext(), fakeDataSource)
     }
 
+
     @Test
-    fun reminderListHasNoData_showLoadingProgress() {
-        reminderListViewModel.showLoading.value = false
+    fun reminderListHasNotData_emptyResult() =
         runBlockingTest {
             //Given
             mainCoroutineRule.pauseDispatcher()
             reminderListViewModel.loadReminders()
 
-            reminderListViewModel.showLoading.value = true
-
-            //result
-            assertThat(reminderListViewModel.showLoading.getOrAwaitValue(), `is`(true))
-        }
-
-    }
-
-    @Test
-    fun reminderListHasNoData_hideLoadingProgress() {
-        reminderListViewModel.showLoading.value = true
-        runBlockingTest {
-            //Given
-            reminderListViewModel.loadReminders()
-            reminderListViewModel.showLoading.value = false
-            //result
-            assertThat(reminderListViewModel.showLoading.getOrAwaitValue(),
-                `is`(false))
-        }
-    }
-
-    @Test
-    fun reminderListHasNotData_emptyResult() {
-        reminderListViewModel.showLoading.value = true
-        runBlockingTest {
-            //Given
-            fakeDataSource.deleteAllReminders()
             //When
-            reminderListViewModel.loadReminders()
-            reminderListViewModel.showLoading.value = false
+            assertThat(reminderListViewModel.showLoading.getOrAwaitValue(), `is`(true))
+
             //result
+            mainCoroutineRule.resumeDispatcher()
             assertThat(reminderListViewModel.remindersList.getOrAwaitValue().isEmpty(), `is`(true))
             assertThat(reminderListViewModel.showNoData.getOrAwaitValue(), `is`(true))
+            assertThat(reminderListViewModel.showLoading.getOrAwaitValue(), `is`(false))
         }
-    }
+
 
     @Test
     fun loadReminderData_whenNoDataAvailable() {
         fakeDataSource.setReturnError(true)
         reminderListViewModel.loadReminders()
 
-
-        assertThat(reminderListViewModel.showSnackBar.getOrAwaitValue(),
-            `is`("Error"))
+        assertThat(reminderListViewModel.showSnackBar.getOrAwaitValue(), `is`("Error"))
     }
 
     @Test
     fun loadReminderData_withData() {
-        reminderListViewModel.showLoading.value = true
         runBlockingTest {
             //Given
             fakeDataSource.saveReminder(setReminderData())
 
             //When
             reminderListViewModel.loadReminders()
-            reminderListViewModel.showLoading.value = false
 
             //result
             assertThat(reminderListViewModel.remindersList.getOrAwaitValue().isEmpty(), `is`(false))

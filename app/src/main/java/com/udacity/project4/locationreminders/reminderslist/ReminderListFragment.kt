@@ -1,6 +1,5 @@
 package com.udacity.project4.locationreminders.reminderslist
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -8,7 +7,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.tasks.Task
-import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.base.BaseFragment
@@ -17,7 +15,6 @@ import com.udacity.project4.databinding.FragmentRemindersBinding
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
-import org.koin.android.ext.android.bind
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
@@ -28,7 +25,7 @@ class ReminderListFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View{
         binding =
             DataBindingUtil.inflate(
                 inflater,
@@ -77,43 +74,9 @@ class ReminderListFragment : BaseFragment() {
     private fun setupRecyclerView() {
         val adapter = RemindersListAdapter {
         }
+
 //        setup the recycler view using the extension function
         binding.reminderssRecyclerView.setup(adapter)
-    }
-
-
-    private fun userSignOut(it: Task<Void>) {
-        val alertDialog = AlertDialog.Builder(requireContext())
-        val builder = alertDialog.setTitle("Are you sure you wants to leave")
-            .setMessage("If you  logged out all your data will erase")
-            .setPositiveButton("Exit") { _, _ ->
-                logout(it)
-            }
-            .setNegativeButton("Cancel") { dialogInterface, _ ->
-                Snackbar.make(binding.reminderListFragment,
-                    "Thanks for staying ❤",
-                    Snackbar.LENGTH_INDEFINITE).show()
-                dialogInterface.dismiss()
-            }
-        builder.show()
-
-    }
-
-    private fun logout(it: Task<Void>) {
-        if (it.isSuccessful) {
-            Toast.makeText(
-                requireContext(),
-                "We will miss you try to come back again 😥 👋 ",
-                Toast.LENGTH_LONG
-            ).show()
-            startActivity(Intent(requireActivity(), AuthenticationActivity::class.java))
-            _viewModel.removeAllReminders()
-            requireActivity().finish()
-        } else {
-            Snackbar.make(requireView(),
-                getString(R.string.logout_failed),
-                Snackbar.LENGTH_INDEFINITE).show()
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -128,6 +91,20 @@ class ReminderListFragment : BaseFragment() {
         return super.onOptionsItemSelected(item)
 
     }
+
+    private fun userSignOut(it: Task<Void>) {
+        if (it.isSuccessful) {
+            Toast.makeText(requireContext(),
+                "We will miss you try to come back again :) ",
+                Toast.LENGTH_LONG).show()
+            startActivity(Intent(requireActivity(), AuthenticationActivity::class.java))
+            _viewModel.removeAllReminders()
+            requireActivity().finish()
+        } else {
+            Toast.makeText(requireContext(), "Failed To logout", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)

@@ -11,14 +11,10 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PointOfInterest
+import androidx.test.filters.MediumTest
 import com.udacity.project4.R
-import com.udacity.project4.getOrAwaitValue
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
@@ -31,7 +27,6 @@ import com.udacity.project4.utils.EspressoIdlingResource
 import com.udacity.util.DataBindingIdlingResource
 import com.udacity.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.hamcrest.core.Is.`is`
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -47,6 +42,7 @@ import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
+@MediumTest
 class SaveReminderListFragmentTest {
 
     private lateinit var viewModel: SaveReminderViewModel
@@ -81,7 +77,7 @@ class SaveReminderListFragmentTest {
     }
 
     @Before
-    fun registerIdlingResources(): Unit {
+    fun registerIdlingResources(){
         return IdlingRegistry.getInstance().run {
             register(EspressoIdlingResource.countingIdlingResource)
             register(dataBindingIdlingResource)
@@ -89,7 +85,7 @@ class SaveReminderListFragmentTest {
     }
 
     @After
-    fun unRegisterIdlingResources(): Unit {
+    fun unRegisterIdlingResources(){
         return IdlingRegistry.getInstance().run {
             unregister(EspressoIdlingResource.countingIdlingResource)
             unregister(dataBindingIdlingResource)
@@ -115,7 +111,7 @@ class SaveReminderListFragmentTest {
     }
 
     @Test
-    fun saveReminder_ValidData() {
+    fun locationMissing() {
         val navController = Mockito.mock(NavController::class.java)
         val scenario =
             launchFragmentInContainer<SaveReminderFragment>(Bundle.EMPTY, R.style.AppTheme)
@@ -130,8 +126,8 @@ class SaveReminderListFragmentTest {
 
         onView(withId(R.id.saveReminder)).perform(click())
 
-        assertThat(viewModel.showToast.getOrAwaitValue(), `is`("Failed to add reminder"))
     }
+
     @Test
     fun clickOnAddFab_navigatesToSaveReminderFragment() {
         val scenario =
@@ -144,6 +140,7 @@ class SaveReminderListFragmentTest {
         }
 
         onView(withId(R.id.addReminderFAB)).perform(click())
+
         Mockito.verify(navController).navigate(ReminderListFragmentDirections.toSaveReminder())
     }
 

@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.hamcrest.MatcherAssert.assertThat
 import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.data.source.FakeDataSource
 import com.udacity.project4.getOrAwaitValue
@@ -12,6 +11,7 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.Before
 import org.junit.Rule
@@ -45,11 +45,20 @@ class SaveReminderViewModelTest {
 
     @Test
     fun saveReminder_enterValidData() {
+        //Given
+        val reminderItem = setReminderData()
+        mainCoroutineRule.pauseDispatcher()
+
         //when
-        saveReminderViewModel.saveReminder(setReminderData())
+        saveReminderViewModel.validateAndSaveReminder(reminderItem)
+        assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), `is`(true))
+
 
         //result
+        mainCoroutineRule.resumeDispatcher()
         assertThat(saveReminderViewModel.showToast.getOrAwaitValue(), `is`("Reminder Saved !"))
+        assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), `is`(false))
+
     }
 
     @Test

@@ -5,8 +5,6 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.app.PendingIntent
-import android.app.ProgressDialog.show
-import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -15,13 +13,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -30,7 +25,6 @@ import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import kotlinx.android.synthetic.main.fragment_save_reminder.*
 import org.koin.android.ext.android.inject
 
 class SaveReminderFragment : BaseFragment() {
@@ -105,6 +99,7 @@ class SaveReminderFragment : BaseFragment() {
         super.onAttach(activity)
         this.activity = activity
     }
+
     private fun checkPermissionAndStartGeofencing() {
         if (foregroundAndBackgroundLocationPermissionApproved()) {
             checkDeviceLocationSettingAndStartGeofence()
@@ -152,7 +147,6 @@ class SaveReminderFragment : BaseFragment() {
     }
 
 
-
     private fun addGeofenceForReminder() {
         if (this::reminderDataItem.isInitialized) {
             if (_viewModel.validateAndSaveReminder(reminderDataItem)) {
@@ -174,6 +168,7 @@ class SaveReminderFragment : BaseFragment() {
         geofenceClient.addGeofences(geofenceRequest, geofencePendingIntent).run {
             addOnSuccessListener {
                 Log.d(TAG, "addGeofenceForReminder: ${geofence?.requestId}")
+
             }
             addOnFailureListener {
                 if (it.message != null) {
@@ -239,7 +234,9 @@ class SaveReminderFragment : BaseFragment() {
         }
 
         Log.d(TAG, getString(R.string.error_happened))
-        ActivityCompat.requestPermissions(requireActivity(), permissionArray, PERMISSION_REQUEST_CODE)
+        requestPermissions(
+            permissionArray,
+            PERMISSION_REQUEST_CODE)
     }
 
 

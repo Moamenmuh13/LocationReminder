@@ -1,7 +1,6 @@
 package com.udacity.LocationReminder.reminderList
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
@@ -9,29 +8,24 @@ import androidx.navigation.Navigation
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.withDecorView
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.R
-import com.udacity.project4.getOrAwaitValue
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.ReminderListFragment
-import com.udacity.project4.locationreminders.reminderslist.ReminderListFragmentDirections
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.utils.EspressoIdlingResource
 import com.udacity.util.DataBindingIdlingResource
 import com.udacity.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.not
-import org.hamcrest.core.Is
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -44,7 +38,6 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -92,7 +85,7 @@ class ReminderListFragmentTest {
 
 
     @Before
-    fun registerIdlingResources(): Unit {
+    fun registerIdlingResources() {
         return IdlingRegistry.getInstance().run {
             register(EspressoIdlingResource.countingIdlingResource)
             register(dataBindingIdlingResource)
@@ -100,7 +93,7 @@ class ReminderListFragmentTest {
     }
 
     @After
-    fun unRegisterIdlingResources(): Unit {
+    fun unRegisterIdlingResources() {
         return IdlingRegistry.getInstance().run {
             unregister(EspressoIdlingResource.countingIdlingResource)
             unregister(dataBindingIdlingResource)
@@ -130,17 +123,19 @@ class ReminderListFragmentTest {
         onView(withText(setReminderData().title)).check(matches(isDisplayed()))
         onView(withText(setReminderData().description)).check(matches(isDisplayed()))
         onView(withText(setReminderData().location)).check(matches(isDisplayed()))
-
-        assertThat(viewModel.showToast.getOrAwaitValue(), Is.`is`("add reminder"))
-
     }
+
 
     @Test
     fun noReminders_shows_noData() {
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(scenario)
-        onView(withText(R.string.no_data))
-            .check(matches(isDisplayed()))
+        onView(withText(R.string.no_data)).check(matches(isDisplayed()))
+
+        Thread.sleep(3000)
+        // result
+        // it will show a toast message with no data
+
     }
 
 }
