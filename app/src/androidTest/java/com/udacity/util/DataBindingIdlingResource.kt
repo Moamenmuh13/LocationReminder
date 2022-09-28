@@ -58,15 +58,15 @@ class DataBindingIdlingResource : IdlingResource {
 
         val binding = fragment?.mapNotNull {
             it.view?.getBinding()
-        } ?: emptyList()
+        }
 
         val childrenBinding = fragment?.flatMap {
             it.childFragmentManager.fragments
         }?.mapNotNull {
             it.view?.getBinding()
-        } ?: emptyList()
+        }
 
-        return binding + childrenBinding
+        return binding!! + childrenBinding!!
     }
 
     private fun View.getBinding(): ViewDataBinding? = DataBindingUtil.getBinding(this)
@@ -74,13 +74,13 @@ class DataBindingIdlingResource : IdlingResource {
 }
 
 fun DataBindingIdlingResource.monitorActivity(activityScenario: ActivityScenario<out FragmentActivity>) {
-    activityScenario.onActivity() {
+    activityScenario.onActivity {
         this.activity = it
     }
 }
 
 fun DataBindingIdlingResource.monitorFragment(activityScenario: FragmentScenario<out Fragment>) {
-    activityScenario.onFragment() {
+    activityScenario.onFragment {
         this.activity = it.requireActivity()
     }
 }

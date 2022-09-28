@@ -1,8 +1,10 @@
 package com.udacity.project4.locationreminders.reminderslist
 
 import android.app.Application
+import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.udacity.project4.R
 import com.udacity.project4.base.BaseViewModel
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -56,8 +58,6 @@ class RemindersListViewModel(
             dataSource.deleteAllReminders()
         }
     }
-
-
     /**
      * Inform the user that there's not any data if the remindersList is empty
      */

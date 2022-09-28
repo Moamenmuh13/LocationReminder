@@ -1,32 +1,36 @@
 package com.udacity.LocationReminder.saveReminders
 
 import android.os.Bundle
-import android.view.View
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.udacity.project4.R
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PointOfInterest
+import com.udacity.project4.R
 import com.udacity.project4.getOrAwaitValue
 import com.udacity.project4.locationreminders.data.ReminderDataSource
-import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
-import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.utils.EspressoIdlingResource
+import com.udacity.util.DataBindingIdlingResource
+import com.udacity.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import org.hamcrest.core.Is
-import org.hamcrest.core.Is.*
+import org.hamcrest.core.Is.`is`
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +48,7 @@ import org.mockito.Mockito
 class SaveReminderListFragmentTest {
 
     private lateinit var viewModel: SaveReminderViewModel
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -73,12 +78,28 @@ class SaveReminderListFragmentTest {
         viewModel = GlobalContext.get().koin.get()
     }
 
+    @Before
+    fun registerIdlingResources(): Unit {
+        return IdlingRegistry.getInstance().run {
+            register(EspressoIdlingResource.countingIdlingResource)
+            register(dataBindingIdlingResource)
+        }
+    }
+
+    @After
+    fun unRegisterIdlingResources(): Unit {
+        return IdlingRegistry.getInstance().run {
+            unregister(EspressoIdlingResource.countingIdlingResource)
+            unregister(dataBindingIdlingResource)
+        }
+    }
+
     @Test
     fun titleIsMissing() {
         val navController = Mockito.mock(NavController::class.java)
         val scenario =
             launchFragmentInContainer<SaveReminderFragment>(Bundle.EMPTY, R.style.AppTheme)
-
+        dataBindingIdlingResource.monitorFragment(scenario)
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
         }
@@ -93,24 +114,20 @@ class SaveReminderListFragmentTest {
 
     @Test
     fun saveReminder_ValidData() {
-
         val navController = Mockito.mock(NavController::class.java)
         val scenario =
             launchFragmentInContainer<SaveReminderFragment>(Bundle.EMPTY, R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
 
         }
-
         onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText(setReminderData().title))
         onView(withId(R.id.reminderDescription)).perform(ViewActions.typeText(setReminderData().description))
+        closeSoftKeyboard()
 
+        onView(withId(R.id.saveReminder)).perform(click())
 
-
-
-        viewModel.saveReminder(setReminderData())
-
-
-        assertThat(viewModel.showToast.getOrAwaitValue(), `is`("Reminder Saved !"))
+        assertThat(viewModel.showToast.getOrAwaitValue(), `is`("Failed to add reminder"))
     }
 }

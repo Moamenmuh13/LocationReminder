@@ -3,8 +3,6 @@ package com.udacity.project4.locationreminders.savereminder
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.Navigation
-import androidx.navigation.ui.NavigationUI
 import com.google.android.gms.maps.model.PointOfInterest
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseViewModel
@@ -76,11 +74,13 @@ class SaveReminderViewModel(val app: Application, private val dataSource: Remind
      */
     private fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
         if (reminderData.title.isNullOrEmpty()) {
+            showToast.value = app.getString(R.string.err_enter_title)
             showSnackBarInt.value = R.string.err_enter_title
             return false
         }
 
         if (reminderData.location.isNullOrEmpty()) {
+            showToast.value = app.getString(R.string.err_select_location)
             showSnackBarInt.value = R.string.err_select_location
             return false
         }
