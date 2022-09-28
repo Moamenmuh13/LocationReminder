@@ -23,6 +23,8 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.locationreminders.reminderslist.ReminderListFragment
+import com.udacity.project4.locationreminders.reminderslist.ReminderListFragmentDirections
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.EspressoIdlingResource
@@ -130,4 +132,19 @@ class SaveReminderListFragmentTest {
 
         assertThat(viewModel.showToast.getOrAwaitValue(), `is`("Failed to add reminder"))
     }
+    @Test
+    fun clickOnAddFab_navigatesToSaveReminderFragment() {
+        val scenario =
+            launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
+        val navController = Mockito.mock(NavController::class.java)
+        dataBindingIdlingResource.monitorFragment(scenario)
+
+        scenario.onFragment {
+            Navigation.setViewNavController(it.view!!, navController)
+        }
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        Mockito.verify(navController).navigate(ReminderListFragmentDirections.toSaveReminder())
+    }
+
 }
