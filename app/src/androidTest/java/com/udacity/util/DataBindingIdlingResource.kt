@@ -9,7 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.IdlingResource
-import java.util.UUID
+import java.util.*
 
 class DataBindingIdlingResource : IdlingResource {
 
@@ -23,15 +23,11 @@ class DataBindingIdlingResource : IdlingResource {
     lateinit var activity: FragmentActivity
 
 
-    override fun getName(): String {
-        return "DataBinding $id"
-    }
+    override fun getName(): String = "DataBinding $id"
 
     override fun isIdleNow(): Boolean {
 
-        val idle = getBinding().any {
-            it.hasPendingBindings()
-        }
+        val idle = !getBinding().any { it.hasPendingBindings() }
         @Suppress("LiftReturnOrAssignment")
         if (idle) {
             if (wasNotIdle) {
@@ -56,17 +52,17 @@ class DataBindingIdlingResource : IdlingResource {
     }
 
     private fun getBinding(): List<ViewDataBinding> {
-        val fragment = activity
-            .supportFragmentManager
-            .fragments
+        val fragment = (activity as? FragmentActivity)
+            ?.supportFragmentManager
+            ?.fragments
 
-        val binding = fragment.mapNotNull {
+        val binding = fragment?.mapNotNull {
             it.view?.getBinding()
         } ?: emptyList()
 
-        val childrenBinding = fragment.flatMap {
+        val childrenBinding = fragment?.flatMap {
             it.childFragmentManager.fragments
-        }.mapNotNull {
+        }?.mapNotNull {
             it.view?.getBinding()
         } ?: emptyList()
 
@@ -75,7 +71,8 @@ class DataBindingIdlingResource : IdlingResource {
 
     private fun View.getBinding(): ViewDataBinding? = DataBindingUtil.getBinding(this)
 
-    }
+}
+
 fun DataBindingIdlingResource.monitorActivity(activityScenario: ActivityScenario<out FragmentActivity>) {
     activityScenario.onActivity() {
         this.activity = it

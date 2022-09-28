@@ -38,7 +38,7 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
         .addParentStack(ReminderDescriptionActivity::class.java)
         .addNextIntent(intent)
     val notificationPendingIntent = stackBuilder
-        .getPendingIntent(getUniqueId(), PendingIntent.FLAG_UPDATE_CURRENT)
+        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
 
 //    build the notification object with the data to be shown
     val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
@@ -49,7 +49,8 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
         .setAutoCancel(true)
         .build()
 
-    notificationManager.notify(getUniqueId(), notification)
+    //give the notifications the same id to make the newest notification replace the old one
+    notificationManager.notify(0, notification)
 }
 
 private fun getUniqueId() = ((System.currentTimeMillis() % 10000).toInt())
