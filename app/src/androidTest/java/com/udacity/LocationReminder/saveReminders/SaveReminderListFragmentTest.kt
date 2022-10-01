@@ -21,6 +21,7 @@ import com.udacity.project4.locationreminders.data.local.RemindersLocalRepositor
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.reminderslist.ReminderListFragment
 import com.udacity.project4.locationreminders.reminderslist.ReminderListFragmentDirections
+import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.EspressoIdlingResource
@@ -39,6 +40,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.mockito.Mockito
+import java.lang.Thread.sleep
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
@@ -64,6 +66,12 @@ class SaveReminderListFragmentTest {
                 )
             }
 
+            viewModel {
+                RemindersListViewModel(
+                    ApplicationProvider.getApplicationContext(),
+                    get() as ReminderDataSource
+                )
+            }
             single { RemindersLocalRepository(get()) as ReminderDataSource }
             single { LocalDB.createRemindersDao(ApplicationProvider.getApplicationContext()) }
         }
@@ -77,7 +85,7 @@ class SaveReminderListFragmentTest {
     }
 
     @Before
-    fun registerIdlingResources(){
+    fun registerIdlingResources() {
         return IdlingRegistry.getInstance().run {
             register(EspressoIdlingResource.countingIdlingResource)
             register(dataBindingIdlingResource)
@@ -85,7 +93,7 @@ class SaveReminderListFragmentTest {
     }
 
     @After
-    fun unRegisterIdlingResources(){
+    fun unRegisterIdlingResources() {
         return IdlingRegistry.getInstance().run {
             unregister(EspressoIdlingResource.countingIdlingResource)
             unregister(dataBindingIdlingResource)
@@ -138,10 +146,12 @@ class SaveReminderListFragmentTest {
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
         }
-
         onView(withId(R.id.addReminderFAB)).perform(click())
-
         Mockito.verify(navController).navigate(ReminderListFragmentDirections.toSaveReminder())
+
+        sleep(1000)
+
+
     }
 
 }

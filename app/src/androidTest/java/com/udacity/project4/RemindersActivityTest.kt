@@ -99,6 +99,8 @@ class RemindersActivityTest :
             .check(
                 matches(isDisplayed()))
         onView(withId(R.id.noDataTextView)).check(matches(isDisplayed()))
+
+        activityScenario.close()
     }
 
 

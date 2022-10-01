@@ -133,9 +133,6 @@ class ReminderListFragmentTest {
         onView(withText(R.string.no_data)).check(matches(isDisplayed()))
 
         Thread.sleep(3000)
-        // result
-        // it will show a toast message with no data
-
     }
 
 }
